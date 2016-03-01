@@ -1,9 +1,18 @@
 {
     "push": {
-      "name": "",
-      "vcs": true
+        "name": "",
+        "vcs": true
     },
     "variables": {
+        "cpu_cores": "2",
+        "memory": "5000",
+        "disk_size": "90960",
+        "headless": "true",
+        "iso_checksum": "a3b345908a826e262f4ea1afeb357fd09ec0558cf34e6c9112cead4bb55ccdfb",
+        "iso_checksum_type": "sha256",
+        "iso_url": "http://releases.ubuntu.com/14.04.3/ubuntu-14.04.3-server-amd64.iso",
+        "ssh_username": "vagrant",
+        "ssh_password": "vagrant",
         "atlas_username": "{{env `ATLAS_USERNAME`}}",
         "atlas_name": "{{env `ATLAS_NAME`}}"
     },
@@ -31,7 +40,8 @@
     ],
     "builders": [
         {
-            "type": "virtualbox-iso",
+            "name": "vmware",
+            "vm_name": "swiftbox-vmware",
             "boot_command": [
                 "<esc><esc><enter><wait>",
                 "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
@@ -41,48 +51,66 @@
                 "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
                 "initrd=/install/initrd.gz -- <enter>"
             ],
-            "headless": true,
-            "boot_wait": "10s",
-            "disk_size": 20480,
-            "guest_os_type": "Ubuntu_64",
+            "boot_wait": "20s",
+            "disk_size": "{{user `disk_size`}}",
+            "headless": "{{user `headless`}}",
             "http_directory": "http",
-            "iso_checksum": "af224223de99e2a730b67d7785b657f549be0d63221188e105445f75fb8305c9",
-            "iso_checksum_type": "sha256",
-            "iso_url": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.iso",
-            "ssh_username": "vagrant",
-            "ssh_password": "vagrant",
-            "ssh_port": 22,
-            "ssh_wait_timeout": "10000s",
-            "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'vagrant'|sudo -S bash 'shutdown.sh'",
-            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
-            "virtualbox_version_file": ".vbox_version"
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+            "ssh_password": "{{user `ssh_username`}}",
+            "ssh_username": "{{user `ssh_password`}}",
+            "ssh_wait_timeout": "20m",
+            "tools_upload_flavor": "linux",
+            "type": "vmware-iso",
+            "vmx_data": {
+                "cpuid.coresPerSocket": "1",
+                "memsize": "{{user `memory`}}",
+                "numvcpus": "{{user `cpu_cores`}}"
+            }
         },
         {
-            "type": "vmware-iso",
+            "name": "vbox",
+            "vm_name": "swiftbox",
             "boot_command": [
                 "<esc><esc><enter><wait>",
                 "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
                 "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
                 "hostname={{ .Name }} ",
-                "fb=false debconf/frontend=noninteractive ",
+                "fb=false debconf/fronten=d=noninteractive ",
                 "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
                 "initrd=/install/initrd.gz -- <enter>"
             ],
-            "boot_wait": "10s",
-            "disk_size": 20480,
-            "guest_os_type": "Ubuntu-64",
-            "headless": true,
+            "boot_wait": "20s",
+            "disk_size": "{{user `disk_size`}}",
+            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "guest_os_type": "Ubuntu_64",
+            "headless": "{{user `headless`}}",
             "http_directory": "http",
-            "iso_checksum": "af224223de99e2a730b67d7785b657f549be0d63221188e105445f75fb8305c9",
-            "iso_checksum_type": "sha256",
-            "iso_url": "http://releases.ubuntu.com/precise/ubuntu-12.04.5-server-amd64.iso",
-            "skip_compaction": true,
-            "ssh_username": "vagrant",
-            "ssh_password": "vagrant",
-            "ssh_port": 22,
-            "ssh_wait_timeout": "10000s",
-            "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'vagrant'|sudo -S bash 'shutdown.sh'",
-            "tools_upload_flavor": "linux"
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+            "ssh_password": "{{user `ssh_username`}}",
+            "ssh_username": "{{user `ssh_password`}}",
+            "ssh_wait_timeout": "40m",
+            "type": "virtualbox-iso",
+            "vboxmanage": [
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--memory",
+                    "{{user `memory`}}"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--cpus",
+                    "{{user `cpu_cores`}}"
+                ]
+            ],
+            "virtualbox_version_file": ".vbox_version"
         }
     ],
     "post-processors": [
@@ -109,6 +137,6 @@
                 "provider": "virtualbox",
                 "version": "0.0.1"
             }
-        }]
-    ]
-}
+            }]
+        ]
+    }
