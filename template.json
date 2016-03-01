@@ -40,39 +40,7 @@
     ],
     "builders": [
         {
-            "name": "vmware",
-            "vm_name": "swiftbox-vmware",
-            "boot_command": [
-                "<esc><esc><enter><wait>",
-                "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-                "hostname={{ .Name }} ",
-                "fb=false debconf/frontend=noninteractive ",
-                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-                "initrd=/install/initrd.gz -- <enter>"
-            ],
-            "boot_wait": "20s",
-            "disk_size": "{{user `disk_size`}}",
-            "headless": "{{user `headless`}}",
-            "http_directory": "http",
-            "iso_checksum": "{{user `iso_checksum`}}",
-            "iso_checksum_type": "{{user `iso_checksum_type`}}",
-            "iso_url": "{{user `iso_url`}}",
-            "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
-            "ssh_password": "{{user `ssh_username`}}",
-            "ssh_username": "{{user `ssh_password`}}",
-            "ssh_wait_timeout": "20m",
-            "tools_upload_flavor": "linux",
-            "type": "vmware-iso",
-            "vmx_data": {
-                "cpuid.coresPerSocket": "1",
-                "memsize": "{{user `memory`}}",
-                "numvcpus": "{{user `cpu_cores`}}"
-            }
-        },
-        {
-            "name": "vbox",
-            "vm_name": "swiftbox",
+            "type": "virtualbox-iso",
             "boot_command": [
                 "<esc><esc><enter><wait>",
                 "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
@@ -111,6 +79,36 @@
                 ]
             ],
             "virtualbox_version_file": ".vbox_version"
+        },
+        {
+            "type": "vmware-iso",
+            "boot_command": [
+                "<esc><esc><enter><wait>",
+                "/install/vmlinuz noapic preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+                "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
+                "hostname={{ .Name }} ",
+                "fb=false debconf/frontend=noninteractive ",
+                "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+                "initrd=/install/initrd.gz -- <enter>"
+            ],
+            "boot_wait": "20s",
+            "disk_size": "{{user `disk_size`}}",
+            "headless": "{{user `headless`}}",
+            "http_directory": "http",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "iso_url": "{{user `iso_url`}}",
+            "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
+            "ssh_password": "{{user `ssh_username`}}",
+            "ssh_username": "{{user `ssh_password`}}",
+            "ssh_wait_timeout": "20m",
+            "tools_upload_flavor": "linux",
+            "type": "vmware-iso",
+            "vmx_data": {
+                "cpuid.coresPerSocket": "1",
+                "memsize": "{{user `memory`}}",
+                "numvcpus": "{{user `cpu_cores`}}"
+            }
         }
     ],
     "post-processors": [
