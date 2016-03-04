@@ -13,3 +13,10 @@ rm /lib/udev/rules.d/75-persistent-net-generator.rules
 
 echo "Adding a 2 sec delay to the interface up, to make the dhclient happy"
 echo "pre-up sleep 2" >> /etc/network/interfaces
+
+# Cleanup
+sudo apt-get clean
+
+# Get rid of all the Swift build files (saves over 4.2GB)
+sudo rm -rf ~/swift-src
+sudo rm -rf ~/swift-build

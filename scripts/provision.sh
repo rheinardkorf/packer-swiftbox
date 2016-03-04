@@ -1,33 +1,53 @@
 #!/bin/bash
-#
-# Setup the the box. This runs as root
 
-apt-get -y update
+# Very very important!
+sudo apt-get update
 
-apt-get -y install curl
+# Install all the tools required to build the Swift source
+sudo apt-get install -y git cmake ninja-build clang python uuid-dev libicu-dev icu-devtools libbsd-dev libedit-dev libxml2-dev libsqlite3-dev swig libpython-dev libncurses5-dev pkg-config
 
-# You can install anything you need here.
-apt-get install -y git cmake ninja-build clang uuid-dev libicu-dev icu-devtools libbsd-dev libedit-dev libxml2-dev libsqlite3-dev swig libpython-dev libncurses5-dev pkg-config
-
-apt-get install -y clang-3.6
+# For Ubuntu 14.04... remove below 3 lines for 15.10+
+sudo apt-get install -y clang-3.6
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.6 100
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-3.6 100
 
 cd ~
-mkdir swift-src
-cd swift-src
 
-git clone https://github.com/apple/swift.git swift
-git clone https://github.com/apple/swift-llvm.git llvm
-git clone https://github.com/apple/swift-clang.git clang
-git clone https://github.com/apple/swift-lldb.git lldb
-git clone https://github.com/apple/swift-cmark.git cmark
-git clone https://github.com/apple/swift-llbuild.git llbuild
-git clone https://github.com/apple/swift-package-manager.git swiftpm
-git clone https://github.com/apple/swift-corelibs-xctest.git
-git clone https://github.com/apple/swift-corelibs-foundation.git
-git clone https://github.com/ninja-build/ninja.git
-
+# Create a build script if it does not exist
+if [ ! -f /home/vagrant/build-from-source.sh ]; then
+cat > build-from-source.sh << EOF
+#!bin/bash
+mkdir -p ~/swift-src
+cd ~/swift-src
+git clone https://github.com/apple/swift.git
 cd swift
-utils/build-script --preset=buildbot_linux_1404 install_destdir=/tmp/install installable_package=/tmp/swift.tar.gz
-sudo rsync -a /tmp/install/ /opt/apple/swift-2.2/
+
+# If you want to build Swift 2.2, uncomment the line below.
+# git checkout swift-2.2-branch
+
+# Clone required repos
+./utils/update-checkout --clone
+# Build and be patient
+./utils/build-script --preset=buildbot_linux_1404 install_destdir=~/swift-build installable_package=~/swift.tar.gz
+
+# Sync Swift build to /usr/ (change to /usr/local/ or /opt/vendor/ if you prefer)
+sudo rsync -rl ~/swift-build/usr/ /usr/
+EOF
+fi
+
+# Run the build script
+if ! type "swift" >/dev/null 2>&1; then
+	sudo bash build-from-source.sh
+fi
+
+
+# Delete /etc/udev/rules.d/70-persistent-net.rule if it exists
+[ -f /etc/udev/rules.d/70-persistent-net.rule ] && sudo rm -f /etc/udev/rules.d/70-persistent-net.rule || true
+
+# Zero the filesystem to help compression
+sync
+sudo dd if=/dev/zero of=/EMPTY bs=1M || true
+sudo rm -f /EMPTY
+sync
+echo 3 > /proc/sys/vm/drop_caches
+sync

@@ -1,12 +1,8 @@
 {
-    "push": {
-        "name": "",
-        "vcs": true
-    },
     "variables": {
         "cpu_cores": "2",
-        "memory": "5000",
-        "disk_size": "90960",
+        "memory": "8192",
+        "disk_size": "20000",
         "headless": "true",
         "iso_checksum": "a3b345908a826e262f4ea1afeb357fd09ec0558cf34e6c9112cead4bb55ccdfb",
         "iso_checksum_type": "sha256",
