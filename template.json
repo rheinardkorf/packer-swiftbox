@@ -2,7 +2,7 @@
     "variables": {
         "cpu_cores": "2",
         "memory": "8192",
-        "disk_size": "20000",
+        "disk_size": "40000",
         "headless": "true",
         "iso_checksum": "a3b345908a826e262f4ea1afeb357fd09ec0558cf34e6c9112cead4bb55ccdfb",
         "iso_checksum_type": "sha256",
@@ -10,7 +10,7 @@
         "ssh_username": "vagrant",
         "ssh_password": "vagrant",
         "atlas_username": "{{env `ATLAS_USERNAME`}}",
-        "atlas_name": "{{env `ATLAS_NAME`}}"
+        "atlas_name": "swift-dev"
     },
     "provisioners": [
         {
